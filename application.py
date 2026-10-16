@@ -9,8 +9,8 @@ application = create_app()
 @application.get("/deploy")
 def deploy_info():
     return {
-        "deploy": "rolling",
-        "build": "v2-rolling",
+        "deploy": "all-at-once",
+        "build": "v3-allatonce",
         "host": socket.gethostname(),
     }
 
