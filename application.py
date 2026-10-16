@@ -9,8 +9,8 @@ application = create_app()
 @application.get("/deploy")
 def deploy_info():
     return {
-        "deploy": "rolling-additional-batch",
-        "build": "v4-additional",
+        "deploy": "immutable",
+        "build": "v5-immutable",
         "host": socket.gethostname(),
     }
 
