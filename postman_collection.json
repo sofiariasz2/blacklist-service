@@ -1,0 +1,203 @@
+{
+  "info": {
+    "name": "Entrega 1 - Blacklist Service",
+    "description": "Colección de pruebas para el microservicio de listas negras de correo.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check - Ping",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{BASE_URL}}/ping",
+          "host": ["{{BASE_URL}}"],
+          "path": ["ping"]
+        }
+      },
+      "response": [
+        {
+          "name": "200 OK - Ping",
+          "originalRequest": {
+            "method": "GET",
+            "url": { "raw": "{{BASE_URL}}/ping", "host": ["{{BASE_URL}}"], "path": ["ping"] }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"status\": \"ok\",\n  \"version\": \"1.0.0\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "1. POST /blacklists - Exitoso (201)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{AUTH_TOKEN}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"spammer@ejemplo.com\",\n  \"app_uuid\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"blocked_reason\": \"Envio masivo no autorizado\"\n}"
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/blacklists",
+          "host": ["{{BASE_URL}}"],
+          "path": ["blacklists"]
+        }
+      },
+      "response": [
+        {
+          "name": "201 Created",
+          "originalRequest": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{AUTH_TOKEN}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"spammer@ejemplo.com\",\n  \"app_uuid\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"blocked_reason\": \"Envio masivo no autorizado\"\n}"
+            },
+            "url": { "raw": "{{BASE_URL}}/blacklists", "host": ["{{BASE_URL}}"], "path": ["blacklists"] }
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"msg\": \"El email spammer@ejemplo.com fue agregado a la lista negra global.\",\n  \"data\": {\n    \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"email\": \"spammer@ejemplo.com\",\n    \"app_uuid\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"blocked_reason\": \"Envio masivo no autorizado\",\n    \"request_ip\": \"127.0.0.1\",\n    \"created_at\": \"2026-10-16T23:00:00\"\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "2. POST /blacklists - Ya existe (409)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{AUTH_TOKEN}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"spammer@ejemplo.com\",\n  \"app_uuid\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"blocked_reason\": \"Intento duplicado\"\n}"
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/blacklists",
+          "host": ["{{BASE_URL}}"],
+          "path": ["blacklists"]
+        }
+      },
+      "response": [
+        {
+          "name": "409 Conflict",
+          "status": "Conflict",
+          "code": 409,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"msg\": \"El email spammer@ejemplo.com ya esta en la lista negra global.\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "3. POST /blacklists - UUID Invalido (400)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{AUTH_TOKEN}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"test_invalido@ejemplo.com\",\n  \"app_uuid\": \"uuid-invalido-123\",\n  \"blocked_reason\": \"UUID mal formado\"\n}"
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/blacklists",
+          "host": ["{{BASE_URL}}"],
+          "path": ["blacklists"]
+        }
+      },
+      "response": [
+        {
+          "name": "400 Bad Request",
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"msg\": \"Datos invalidos.\",\n  \"errors\": {\n    \"app_uuid\": [\"Not a valid UUID.\"]\n  }\n}"
+        }
+      ]
+    },
+    {
+      "name": "4. POST /blacklists - Sin Token (401)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"hacker@ejemplo.com\",\n  \"app_uuid\": \"123e4567-e89b-12d3-a456-426614174000\"\n}"
+        },
+        "url": {
+          "raw": "{{BASE_URL}}/blacklists",
+          "host": ["{{BASE_URL}}"],
+          "path": ["blacklists"]
+        }
+      },
+      "response": [
+        {
+          "name": "401 Unauthorized",
+          "status": "Unauthorized",
+          "code": 401,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"msg\": \"Falta el token de autorizacion (Bearer).\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "5. GET /blacklists/:email - Bloqueado (True)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{AUTH_TOKEN}}" }
+        ],
+        "url": {
+          "raw": "{{BASE_URL}}/blacklists/spammer@ejemplo.com",
+          "host": ["{{BASE_URL}}"],
+          "path": ["blacklists", "spammer@ejemplo.com"]
+        }
+      },
+      "response": [
+        {
+          "name": "200 OK - Bloqueado",
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"is_blacklisted\": true,\n  \"blocked_reason\": \"Envio masivo no autorizado\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "6. GET /blacklists/:email - No Bloqueado (False)",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{AUTH_TOKEN}}" }
+        ],
+        "url": {
+          "raw": "{{BASE_URL}}/blacklists/usuario_limpio@ejemplo.com",
+          "host": ["{{BASE_URL}}"],
+          "path": ["blacklists", "usuario_limpio@ejemplo.com"]
+        }
+      },
+      "response": [
+        {
+          "name": "200 OK - No Bloqueado",
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "body": "{\n  \"is_blacklisted\": false,\n  \"blocked_reason\": null\n}"
+        }
+      ]
+    }
+  ]
+}
