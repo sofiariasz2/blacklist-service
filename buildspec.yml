@@ -1,0 +1,28 @@
+
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo "Instalando dependencias..."
+      - python3 --version
+      - python3 -m pip install --upgrade pip
+      - python3 -m pip install -r requirements.txt -r requirements-dev.txt
+
+  build:
+    commands:
+      - echo "Ejecutando pruebas automatizadas..."
+      - python3 -m pytest
+
+  post_build:
+    commands:
+      - echo "Compilacion y pruebas finalizadas correctamente."
+
+artifacts:
+  files:
+    - application.py
+    - Procfile
+    - requirements.txt
+    - "app/**/*"
+    - "reports/**/*"
+  discard-paths: no
