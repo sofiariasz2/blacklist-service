@@ -18,6 +18,12 @@ phases:
     commands:
       - echo "Compilacion y pruebas finalizadas correctamente."
 
+reports:
+  pytest_reports:
+    files:
+      - reports/junit.xml
+    file-format: JUNITXML
+
 artifacts:
   files:
     - application.py
