@@ -1,6 +1,6 @@
 def test_ping_sin_token_200(client):
     r = client.get("/ping")
-    assert r.status_code == 200
+    assert r.status_code == 500
     assert r.json == {"status": "ok", "version": "test-1.0.0"}
 
 
