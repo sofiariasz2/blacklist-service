@@ -1,5 +1,9 @@
-
 version: 0.2
+
+env:
+  variables:
+    ECR_REPOSITORY_NAME: "blacklist-service"
+    ECS_EXECUTION_ROLE_NAME: "ecsTaskExecutionRole"
 
 phases:
   install:
@@ -9,14 +13,32 @@ phases:
       - python3 -m pip install --upgrade pip
       - python3 -m pip install -r requirements.txt -r requirements-dev.txt
 
-  build:
+  pre_build:
     commands:
       - echo "Ejecutando pruebas automatizadas..."
       - python3 -m pytest
+      - echo "Iniciando sesion en Amazon ECR..."
+      - AWS_ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      - ECR_REGISTRY=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - IMAGE_REPOSITORY=$ECR_REGISTRY/$ECR_REPOSITORY_NAME
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:-latest}
+
+  # Todo va en build porque post_build se ejecuta aunque build falle
+  build:
+    commands:
+      - echo "Construyendo la imagen $IMAGE_REPOSITORY:$IMAGE_TAG..."
+      - docker build -t $IMAGE_REPOSITORY:$IMAGE_TAG .
+      - echo "Publicando la imagen en Amazon ECR..."
+      - docker push $IMAGE_REPOSITORY:$IMAGE_TAG
+      - echo "Generando los artefactos de despliegue..."
+      - printf '{"ImageURI":"%s"}' "$IMAGE_REPOSITORY:$IMAGE_TAG" > imageDetail.json
+      - sed -i "s|<AWS_ACCOUNT_ID>|$AWS_ACCOUNT_ID|g; s|<AWS_REGION>|$AWS_DEFAULT_REGION|g; s|<ECS_EXECUTION_ROLE_NAME>|$ECS_EXECUTION_ROLE_NAME|g; s|<APP_VERSION>|$IMAGE_TAG|g" taskdef.json
 
   post_build:
     commands:
-      - echo "Compilacion y pruebas finalizadas correctamente."
+      - echo "Compilacion finalizada."
 
 reports:
   pytest_reports:
@@ -26,9 +48,7 @@ reports:
 
 artifacts:
   files:
-    - application.py
-    - Procfile
-    - requirements.txt
-    - "app/**/*"
-    - "reports/**/*"
+    - imageDetail.json
+    - appspec.yaml
+    - taskdef.json
   discard-paths: no

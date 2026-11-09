@@ -20,4 +20,6 @@ class Config:
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-secret-local-cambiar-en-aws-por-una-clave-larga")
     # El token es estático (permitido por el enunciado): no expira
     JWT_ACCESS_TOKEN_EXPIRES = False
+    # Sin esto Flask-RESTful convierte los errores de JWT en 500 en vez de 401
+    PROPAGATE_EXCEPTIONS = True
     APP_VERSION = os.getenv("APP_VERSION", "1.0.0")
