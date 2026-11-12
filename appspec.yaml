@@ -6,4 +6,4 @@ Resources:
         TaskDefinition: <TASK_DEFINITION>
         LoadBalancerInfo:
           ContainerName: blacklist-service
-          ContainerPort: 9000
+          ContainerPort: 8000
