@@ -43,6 +43,34 @@ python -m pytest -q              # pruebas
 
 Si el RDS se crea adjunto al entorno de Beanstalk, la app también lee `RDS_HOSTNAME`, `RDS_USERNAME`, etc. automáticamente.
 
+## Monitoreo con New Relic
+
+El agente de Python (`newrelic`) se inicializa en `application.py` y se configura solo con variables de entorno, sin `newrelic.ini`. Sin `NEW_RELIC_LICENSE_KEY` el agente no se activa y la app funciona igual.
+
+| Variable | Valor |
+|---|---|
+| `NEW_RELIC_LICENSE_KEY` | Licencia de ingesta de la cuenta (secreta). En Fargate sale de Parameter Store: `/blacklist-service/NEW_RELIC_LICENSE_KEY`. |
+| `NEW_RELIC_APP_NAME` | `blacklist-service` (ya viene en el Dockerfile). |
+
+Ambiente de desarrollo, sin Docker:
+
+```bash
+export NEW_RELIC_LICENSE_KEY=<licencia>
+export NEW_RELIC_APP_NAME=blacklist-service-local
+python application.py            # o: gunicorn --bind :8000 application:application
+```
+
+Con Docker:
+
+```bash
+docker build -t blacklist-service .
+docker run --rm -p 8000:8000 -e JWT_SECRET_KEY=dev \
+  -e NEW_RELIC_LICENSE_KEY=<licencia> -e NEW_RELIC_APP_NAME=blacklist-service-local \
+  blacklist-service
+```
+
+En el log debe aparecer `New Relic Python Agent (14.x)` y, tras unas peticiones, la app aparece en New Relic → APM & Services en uno o dos minutos.
+
 ## Desplegar en Beanstalk (manual)
 
 Comprimir el **contenido** de la carpeta (no la carpeta) sin `.venv`:

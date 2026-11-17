@@ -30,6 +30,10 @@
         {
           "name": "JWT_SECRET_KEY",
           "valueFrom": "arn:aws:ssm:<AWS_REGION>:<AWS_ACCOUNT_ID>:parameter/blacklist-service/JWT_SECRET_KEY"
+        },
+        {
+          "name": "NEW_RELIC_LICENSE_KEY",
+          "valueFrom": "arn:aws:ssm:<AWS_REGION>:<AWS_ACCOUNT_ID>:parameter/blacklist-service/NEW_RELIC_LICENSE_KEY"
         }
       ],
       "logConfiguration": {
