@@ -3,7 +3,7 @@
   "networkMode": "awsvpc",
   "requiresCompatibilities": ["FARGATE"],
   "cpu": "256",
-  "memory": "512",
+  "memory": "1024",
   "executionRoleArn": "arn:aws:iam::<AWS_ACCOUNT_ID>:role/<ECS_EXECUTION_ROLE_NAME>",
   "containerDefinitions": [
     {
